@@ -1,0 +1,13 @@
+{
+  "name": "com.soralab.uniartpower",
+  "version": "1.0.0",
+  "displayName": "Uni Artpower",
+  "description": "Newmedia Interactive Tool.",
+  "unity": "2021.3",
+  "author": {
+    "name": "Usagihime5566",
+    "email": "imomou5566@gmail.com",
+    "url": "https://github.com/UsagiHime5566"
+  },
+  "dependencies": {}
+}
