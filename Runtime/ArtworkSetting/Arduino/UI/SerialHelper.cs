@@ -8,19 +8,29 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(ArduinoInteractive))]
+[RequireComponent(typeof(UniArduinoBase))]
 public class SerialHelper : MonoBehaviour
 {
-    [HimeLib.HelpBox] public string tip = "10秒後 自動啟動Arduino";
+    [HimeLib.HelpBox] public string tip = "內建10秒後 自動啟動Arduino";
+    [Header("UI Comp 設置 (TXT_Debug 可以不用設置)")]
     public Dropdown DD_Speed;
     public Dropdown DD_Serial;
     public Button BTN_Restart;
     public Text TXT_State;
     public Text TXT_Debug;
+
+    [Header("啟動後送一個訊號, 空值則不送")]
+    public string readyToSend = "c";
+
+    [Header("Google 工具 (頁面URL, 頁面欄位id)")]
     public string googleSheetUrl;
     public string postId;
+    public bool postSend = false;
+    public bool postRecieve = false;
+    public bool postLog = false;
 
-    [Header("模擬測試")]
+
+    [Header("模擬收訊測試")]
     public string messageToRecieve;
     Queue<string> queueMessage;
     int maxQueueNum = 10;
@@ -31,11 +41,11 @@ public class SerialHelper : MonoBehaviour
         arduinoInteractive.OnRecieveData?.Invoke(messageToRecieve);
     }
 
-    ArduinoInteractive arduinoInteractive;
+    UniArduinoBase arduinoInteractive;
     string[] baudRate = {"300", "600", "1200", "2400", "4800", "9600", "14400", "19200", "28800", "31250", "38400", "57600", "115200"};
 
     void Awake(){
-        arduinoInteractive = GetComponent<ArduinoInteractive>();
+        arduinoInteractive = GetComponent<UniArduinoBase>();
         queueMessage = new Queue<string>();
     }
 
@@ -65,31 +75,38 @@ public class SerialHelper : MonoBehaviour
         if(TXT_Debug){
             TXT_Debug.text = "";
             arduinoInteractive.OnRecieveData += DoQueueMessage;
-            arduinoInteractive.OnArduinoLogs += DoQueueMessage;
+            arduinoInteractive.OnDebugLogs += DoQueueMessage;
         }
 
         //post to google
-        arduinoInteractive.OnRecieveData += SendToGoogle;
-        arduinoInteractive.OnArduinoLogs += SendToGoogle;
+        arduinoInteractive.OnSendData += x => {
+            if(postSend) SendToGoogle(x);
+        };
+        arduinoInteractive.OnRecieveData += x => {
+            if(postRecieve) SendToGoogle(x);
+        };
+        arduinoInteractive.OnDebugLogs += x => {
+            if(postLog) SendToGoogle(x);
+        };
 
         yield return new WaitForSeconds(10);
 
-        arduinoInteractive.StartSerial();
+        arduinoInteractive.ConnectToArduino();
         BTN_Restart.interactable = true;
         StartCoroutine(CheckStatus());
 
-        yield return new WaitForSeconds(10);
+        yield return new WaitForSeconds(5);
         
-        arduinoInteractive.SendData("c");
+        if(!string.IsNullOrEmpty(readyToSend)) arduinoInteractive.SendData(readyToSend);
     }
 
     async void RestartArduino(){
         arduinoInteractive.CloseArduino();
         await Task.Delay(5000);
         if(this == null) return;
-        arduinoInteractive.StartSerial();
+        arduinoInteractive.ConnectToArduino();
         await Task.Delay(5000);
-        arduinoInteractive.SendData("c");
+        if(!string.IsNullOrEmpty(readyToSend)) arduinoInteractive.SendData(readyToSend);
     }
 
     WaitForSeconds wait = new WaitForSeconds(1.0f);
@@ -97,7 +114,7 @@ public class SerialHelper : MonoBehaviour
         while(true){
             yield return wait;
 
-            if(arduinoInteractive.ArduinoPortIsOpen){
+            if(arduinoInteractive.IsArduinoConnect()){
                 TXT_State.text = "Online";
                 TXT_State.color = Color.cyan;
             } else {
@@ -121,6 +138,8 @@ public class SerialHelper : MonoBehaviour
     }
 
     public void SendToGoogle(string msg){
+        if(string.IsNullOrEmpty(msg))
+            return;
         StartCoroutine(PostTool(msg));
     }
 
@@ -132,9 +151,9 @@ public class SerialHelper : MonoBehaviour
         {
             yield return www.SendWebRequest();
 
-            if (www.isNetworkError || www.isHttpError)
+            if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
             {
-                Debug.Log(www.error);
+                Debug.Log("Post tool: " + www.error);
             }
             else
             {

@@ -8,36 +8,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class ArduinoInteractive : MonoBehaviour
+public class ArduinoInteractive : UniArduinoBase
 {
-    [HimeLib.HelpBox] public string tip = "Arduino 端送訊息必須使用 Serial.println(\"string\");";
-    /*
-    **Arduino 端讀取方式**
-    String s = "";
-    while (Serial.available()) {
-        char c = Serial.read();
-        if(c!='\n'){
-            s += c;
-        }
-        // 沒有延遲的話 UART 串口速度會跟不上Arduino的速度，會導致資料不完整
-        delay(5);
-    }
-    */
-
-    [Header("自動化設定")]
-    [Tooltip("是否執行後就開啟相機")] public bool runInStart = false;
-
-    [Header("目前參數")]
-    [SerializeField] bool ArduinoPortState = false;
-    public int baudRate = 9600;
-    public string comName = "COM1";
-    
-
-    //public delegate
-    public Action<string> OnRecieveData;
-	public Action<string> OnArduinoLogs;
-	public bool ArduinoPortIsOpen => GetArduinoPortState();
-
     //private works
     SerialPort arduinoPort;
     Thread recThread;
@@ -45,7 +17,7 @@ public class ArduinoInteractive : MonoBehaviour
 
     async void Start()
     {
-        ArduinoPortState = false;
+        isConnected = false;
         await Task.Delay(1000);
 
         // 避免Editor 時期停止測試後還繼續執行
@@ -53,7 +25,7 @@ public class ArduinoInteractive : MonoBehaviour
             return;
 
         if(runInStart)
-            StartSerial();
+            ConnectToArduino();
     }
 
     void Update ()
@@ -64,7 +36,7 @@ public class ArduinoInteractive : MonoBehaviour
 		}
 	}
 
-    public bool StartSerial()
+    public override bool ConnectToArduino()
 	{
 		arduinoPort = new SerialPort( comName, baudRate );
 		
@@ -74,7 +46,7 @@ public class ArduinoInteractive : MonoBehaviour
 				arduinoPort.Open();
 			} catch(System.Exception e){
 				Debug.LogError(e.Message.ToString());
-				ArduinoPortState = false;
+				isConnected = false;
 				return false;
 			}
 
@@ -92,11 +64,11 @@ public class ArduinoInteractive : MonoBehaviour
 			return false;
 		}
 
-		ArduinoPortState = true;
+		isConnected = true;
 		return true;
 	}
 
-    public void SendData(string data){
+    public override void SendData(string data){
 		if(arduinoPort == null){
 			DebugLog(">> Can't Send (Port is null)");
 			return;
@@ -132,7 +104,7 @@ public class ArduinoInteractive : MonoBehaviour
 			}
 			else
 			{
-				ArduinoPortState = false;
+				isConnected = false;
                 break;
 			}
 
@@ -140,7 +112,7 @@ public class ArduinoInteractive : MonoBehaviour
 		}
 	}
 
-    public void CloseArduino(){
+    public override void CloseArduino(){
 		if(recThread != null)
 			recThread.Abort();
 
@@ -148,18 +120,21 @@ public class ArduinoInteractive : MonoBehaviour
 			return;
 			
 		arduinoPort.Close();
-		ArduinoPortState = false;
+		isConnected = false;
 	}
 
     void OnApplicationQuit() {
         CloseArduino();
     }
 
-	bool GetArduinoPortState(){
+	public override bool IsArduinoConnect(){
 		if(arduinoPort == null)
 			return false;
 
 		if(!arduinoPort.IsOpen)
+			return false;
+
+		if(!isConnected)
 			return false;
 
 		return true;
@@ -167,7 +142,7 @@ public class ArduinoInteractive : MonoBehaviour
 
 	void DebugLog(string msg){
 		Debug.Log(msg);
-		OnArduinoLogs?.Invoke(msg);
+		OnDebugLogs?.Invoke(msg);
 	}
 }
 
