@@ -81,6 +81,7 @@ public class ArduinoInteractive : UniArduinoBase
         
         //因為是 WriteLine, 所以送出去的資訊會包含\n
 		arduinoPort.WriteLine(data);
+		OnSendData?.Invoke(data);
 	}
 
     void RecieveThread(){
