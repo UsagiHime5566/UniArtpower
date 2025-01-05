@@ -138,6 +138,10 @@ public class SerialHelper : MonoBehaviour
     }
 
     public void SendToGoogle(string msg){
+        if(string.IsNullOrEmpty(googleSheetUrl))
+            return;
+        if(string.IsNullOrEmpty(postId))
+            return;
         if(string.IsNullOrEmpty(msg))
             return;
         StartCoroutine(PostTool(msg));
