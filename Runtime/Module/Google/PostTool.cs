@@ -7,13 +7,18 @@ public class PostTool : MonoBehaviour
 {
     [Header("Google Post")]
     public string googleSheetUrl;
-    public List<string> postIds;
+    public List<string> formIds;
+    public bool LogMessage = false;
 
-    public async void Post(string msg, string imgurl){
+    public async void Post(List<string> messages){
         WWWForm form = new WWWForm();
 
-        form.AddField("entry." + postIds[0], msg);      //Copy from google form origin html code
-        form.AddField("entry." + postIds[1], imgurl);   //Copy from google form origin html code
+        for (int i = 0; i < messages.Count; i++)
+        {
+            if(messages.Count <= formIds.Count){
+                form.AddField("entry." + formIds[i], messages[i]);
+            }
+        }
 
         using (UnityWebRequest www = UnityWebRequest.Post(googleSheetUrl, form))
         {
@@ -30,8 +35,7 @@ public class PostTool : MonoBehaviour
             }
             else
             {
-                //Debug.Log("Form upload complete!");
-                //Debug.Log(www.downloadHandler.text);
+                if(LogMessage) Debug.Log($"Form upload complete: {www.downloadHandler.text}");
             }
         }
     }
