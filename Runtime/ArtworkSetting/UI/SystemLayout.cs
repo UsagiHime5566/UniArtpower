@@ -12,13 +12,19 @@ public class SystemLayout : SingletonMono<SystemLayout>
     [Header("關閉選單")] public Button BTN_Option_Close;
     [Header("選單內容放置容器")] public CanvasGroup ContentCanvas;
     [Header("需一起隱藏物件")] public List<GameObject> needHides;
+    [Header("選單點幾次開啟")] public int openCount = 1;
+    [Header("若未隱藏，幾秒後自動隱藏")] public float autoHideTime = 30f;
     public bool isActive => ContentCanvas.blocksRaycasts;
+    
+    int currentClickCount = 0;
+    float lastClickTime;
+    float clickResetTime = 2f; // 2秒内需要完成所有点击
+    Coroutine autoHideCoroutine;
     
     async void Start()
     {
         BTN_Option_Open.onClick.AddListener(delegate {
-            ShowOption(true);
-
+            HandleOpenClick();
         });
 
         BTN_Option_Close.onClick.AddListener(delegate {
@@ -31,6 +37,27 @@ public class SystemLayout : SingletonMono<SystemLayout>
             return;
 
         ShowOption(false);
+    }
+
+    void HandleOpenClick()
+    {
+        float currentTime = Time.time;
+        
+        // 如果超过重置时间，重置点击计数
+        if (currentTime - lastClickTime > clickResetTime)
+        {
+            currentClickCount = 0;
+        }
+        
+        currentClickCount++;
+        lastClickTime = currentTime;
+        
+        // 如果达到指定点击次数，显示菜单
+        if (currentClickCount >= openCount)
+        {
+            ShowOption(true);
+            currentClickCount = 0; // 重置计数
+        }
     }
 
     void Update()
@@ -47,5 +74,29 @@ public class SystemLayout : SingletonMono<SystemLayout>
         {
             item.SetActive(val);
         }
+
+        // 处理自动隐藏
+        if (val)
+        {
+            if (autoHideCoroutine != null)
+            {
+                StopCoroutine(autoHideCoroutine);
+            }
+            autoHideCoroutine = StartCoroutine(AutoHideCoroutine());
+        }
+        else
+        {
+            if (autoHideCoroutine != null)
+            {
+                StopCoroutine(autoHideCoroutine);
+                autoHideCoroutine = null;
+            }
+        }
+    }
+
+    IEnumerator AutoHideCoroutine()
+    {
+        yield return new WaitForSeconds(autoHideTime);
+        ShowOption(false);
     }
 }
