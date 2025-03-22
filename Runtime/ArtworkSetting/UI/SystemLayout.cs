@@ -99,4 +99,8 @@ public class SystemLayout : SingletonMono<SystemLayout>
         yield return new WaitForSeconds(autoHideTime);
         ShowOption(false);
     }
+
+    public void QuitApp(){
+        Application.Quit();
+    }
 }
