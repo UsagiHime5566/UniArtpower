@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class AutoReloadScene : MonoBehaviour
 {
+    [Header("Monitor 可以為 null")]
     public MemoryMonitor memoryMonitor;
     public FpsMonitor fpsMonitor;
 
@@ -98,7 +99,7 @@ public class AutoReloadScene : MonoBehaviour
 
         //記憶體釋放方案
     #if !UNITY_EDITOR
-        if(memoryMonitor.GetMemoryUsageMB() > ReloadWhenMB && timeSinceStartup > AffectAfterSecond && !isReloading){
+        if(memoryMonitor && memoryMonitor.GetMemoryUsageMB() > ReloadWhenMB && timeSinceStartup > AffectAfterSecond && !isReloading){
             isReloading = true;
 
             if(reloadOption == ReloadOption.ReloadScene){
@@ -110,7 +111,7 @@ public class AutoReloadScene : MonoBehaviour
         }
     #endif
 
-        //貞數過慢時重新
+        //貞數過慢時重新, 該處數字越大表示越卡頓, 數值為每幀的微秒數
         if(fpsMonitor != null){
             if(fpsMonitor.GetFPS() > ReloadWhenFPS && timeSinceStartup > AffectAfterSecond && !isReloading){
                 isReloading = true;
