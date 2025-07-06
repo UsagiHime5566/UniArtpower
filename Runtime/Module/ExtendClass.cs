@@ -1,9 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-#if DOTWEEN
-using DG.Tweening;
-#endif
 
 namespace HimeLib
 {
@@ -61,17 +58,5 @@ public static class ExtendFunction
         aCanvasGroup.alpha = aVisible ? 1 : 0;
         aCanvasGroup.blocksRaycasts = aVisible;
         aCanvasGroup.interactable = aVisible;
-    }
-
-    public static void FadeVisible(this CanvasGroup aCanvasGroup, bool aVisible)
-    {
-        aCanvasGroup.blocksRaycasts = aVisible;
-        aCanvasGroup.interactable = aVisible;
-
-#if DOTWEEN
-        aCanvasGroup.DOFade(aVisible ? 1 : 0, 0.5f);
-#else
-        aCanvasGroup.alpha = aVisible ? 1 : 0;
-#endif
     }
 }
