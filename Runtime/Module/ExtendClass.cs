@@ -1,6 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#if DOTWEEN
+using DG.Tweening;
+#endif
 
 namespace HimeLib
 {
