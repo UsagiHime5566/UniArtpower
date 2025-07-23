@@ -9,7 +9,9 @@ namespace HimeLib
     {
         public static System.Action<string> OnPNGSaved;
         public static string lastFileName;
-        public static void Save(Texture2D tex, string path)
+        
+        // 通用的保存方法
+        private static void SaveInternal(Texture2D tex, string path, string fileName)
         {
             if(tex == null) return;
 
@@ -19,9 +21,6 @@ namespace HimeLib
             // Encode texture into PNG
             byte[] bytes = tex.EncodeToPNG();
 
-            //Write to a file in the project folder
-            //string path = Application.dataPath + "/../SavedPaint.png";
-            string fileName = System.DateTime.Now.ToString("yyyyMMddHHmmss") + ".png";
             string fullPath = Path.Combine(path, fileName);
 
             File.WriteAllBytes(fullPath, bytes);
@@ -30,6 +29,18 @@ namespace HimeLib
 
             OnPNGSaved?.Invoke(fullPath);
             lastFileName = fileName;
+        }
+
+        public static void Save(Texture2D tex, string path)
+        {
+            string fileName = System.DateTime.Now.ToString("yyyyMMddHHmmss") + ".png";
+            SaveInternal(tex, path, fileName);
+        }
+
+        public static void SaveLongFileName(Texture2D tex, string path)
+        {
+            string fileName = System.DateTime.Now.ToString("yyyyMMddHHmmss") + "-" + Random.Range(0,36).ToString("X") + Random.Range(0,36).ToString("X") + ".png";
+            SaveInternal(tex, path, fileName);
         }
     }
 }

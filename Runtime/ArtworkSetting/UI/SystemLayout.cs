@@ -14,6 +14,7 @@ public class SystemLayout : SingletonMono<SystemLayout>
     [Header("需一起隱藏物件")] public List<GameObject> needHides;
     [Header("選單點幾次開啟")] public int openCount = 1;
     [Header("若未隱藏，幾秒後自動隱藏")] public float autoHideTime = 30f;
+    [Header("程式執行後幾秒隱藏")] public float autoHideTimeAfterStart = 10f;
     public bool isActive => ContentCanvas.blocksRaycasts;
     
     int currentClickCount = 0;
@@ -31,7 +32,7 @@ public class SystemLayout : SingletonMono<SystemLayout>
             ShowOption(false);
         });
 
-        await Task.Delay(10000);
+        await Task.Delay((int)(autoHideTimeAfterStart * 1000));
 
         if(this == null)
             return;
