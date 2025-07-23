@@ -39,7 +39,11 @@ namespace HimeLib
 
         public static void SaveLongFileName(Texture2D tex, string path)
         {
-            string fileName = System.DateTime.Now.ToString("yyyyMMddHHmmss") + "-" + Random.Range(0,36).ToString("X") + Random.Range(0,36).ToString("X") + ".png";
+            // 可用的字元集：A-Z, a-z, 0-9 (共62個字元)
+            string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            char letter1 = chars[Random.Range(0, chars.Length)];
+            char letter2 = chars[Random.Range(0, chars.Length)];
+            string fileName = System.DateTime.Now.ToString("yyyyMMddHHmmss") + "-" + letter1 + letter2 + ".png";
             SaveInternal(tex, path, fileName);
         }
     }
