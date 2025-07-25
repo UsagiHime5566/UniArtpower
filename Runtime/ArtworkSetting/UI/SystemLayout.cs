@@ -57,6 +57,8 @@ public class SystemLayout : SingletonMono<SystemLayout>
         if (currentClickCount >= openCount)
         {
             ShowOption(true);
+            BTN_Option_Close.interactable = false;
+            StartCoroutine(DelayedEnableButton());
             currentClickCount = 0; // 重置计数
         }
     }
@@ -99,6 +101,12 @@ public class SystemLayout : SingletonMono<SystemLayout>
     {
         yield return new WaitForSeconds(autoHideTime);
         ShowOption(false);
+    }
+
+    IEnumerator DelayedEnableButton()
+    {
+        yield return new WaitForSeconds(1f); // 延遲 1 秒
+        BTN_Option_Close.interactable = true;
     }
 
     public void QuitApp(){
