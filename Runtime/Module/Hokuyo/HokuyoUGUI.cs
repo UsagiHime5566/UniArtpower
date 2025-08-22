@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using UnityEngine;
+using UnityEngine.Events;
 using Urg;
 //from git url: https://github.com/curiosity-inc/urg-unity.git?path=Packages/jp.curiosity-inc.urg-unity
 //再把此檔案複製到自己的script資料夾裡
@@ -11,7 +12,6 @@ namespace HimeLib
     public class HokuyoUGUI : SingletonMono<HokuyoUGUI>
     {
         public UrgSensor urg;
-        public System.Action<Vector2> OnUGUIPosCome;
 
         private float[] rawDistances;
         private List<DetectedLocation> locations = new List<DetectedLocation>();
@@ -22,7 +22,7 @@ namespace HimeLib
         private System.Diagnostics.Stopwatch stopwatch;
         EuclidianClusterExtraction cluster;
 
-        [Header("Debug")]
+        [Header("Debug 視覺化感測器數據")]
         public bool useDebug;
 
         [Header("感應器參數")]
@@ -44,11 +44,11 @@ namespace HimeLib
 
         [Header("是否輸出相反資料 (由天花板照地板時為相反)")]
         public bool isFlip = false;
-        void OnValidate() {
-            
-        }
 
-        protected internal override void OnSingletonAwake()
+        public System.Action<Vector2> OnUGUIPosCome;
+        public UnityEvent<Vector2> OnUGUIPosComeUnityEvent;
+
+        protected override void OnSingletonAwake()
         {
             stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
@@ -143,11 +143,13 @@ namespace HimeLib
                     if(Mathf.Abs(worldPos.x) > filterXX[0] && Mathf.Abs(worldPos.x) < filterXX[1] &&
                         Mathf.Abs(worldPos.z) > filterYY[0] && Mathf.Abs(worldPos.z) < filterYY[1]){
                        // Debug.Log(worldPos);
-                        if(isFlip){
-                            OnUGUIPosCome?.Invoke(new Vector2(worldCorners[1].x - worldPos.x, worldCorners[1].z - worldPos.z));
-                        } else {
-                            OnUGUIPosCome?.Invoke(new Vector2(worldPos.x, worldPos.z));
-                        }
+
+                        Vector2 pos = isFlip ? 
+                            new Vector2(worldCorners[1].x - worldPos.x, worldCorners[1].z - worldPos.z) : 
+                            new Vector2(worldPos.x, worldPos.z);
+                        
+                        OnUGUIPosCome?.Invoke(pos);
+                        OnUGUIPosComeUnityEvent?.Invoke(pos);
                     }
 
                     if(useDebug && index < debugObjects.Count){
@@ -189,10 +191,10 @@ namespace HimeLib
         }
 
         static UnityEngine.Vector2 ScreenPosToUGUI(UnityEngine.Vector2 screenPosition, Camera camera, RectTransform basePlane){
-            // 将屏幕坐标转换为 Canvas 上的局部坐标
+            // 將螢幕座標轉換為 Canvas 上的局部座標
             RectTransformUtility.ScreenPointToLocalPointInRectangle(basePlane, screenPosition, camera, out UnityEngine.Vector2 localPoint);
 
-            // 设置图像的位置为鼠标当前位置
+            // 設置圖像的位置為滑鼠當前位置
             return localPoint;
         }
     }
