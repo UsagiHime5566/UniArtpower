@@ -30,12 +30,14 @@ namespace HimeLib
         [SerializeField] float cooldownRemain = 0;
         [SerializeField] GameObject lastTouchObject;
         [SerializeField] int clickTimes = 0;
-        
+
         // Unity 生命週期方法
         void Start()
         {
-            //Hokuyo 安裝後再取消註解
-            //HokuyoUGUI.instance.OnUGUIPosCome += UGUI_PosCome;
+            //Hokuyo串接，安裝後再取消註解，或是使用UnityEvent系統拖曳
+            //HokuyoHelper.instance.OnScreenPosCome += ScreenPosCome;
+            
+            if (touchPosImage != null) touchPosImage.enabled = showTouchPos;
         }
 
         void Update()
@@ -60,7 +62,6 @@ namespace HimeLib
             }
 
             if(showTouchPos && touchPosCanvas && touchPosImage){
-                touchPosImage.raycastTarget = false;
                 touchPosImage.rectTransform.localPosition = ScreenPosToCanvasPos(touchPosCanvas, screenCoordinate);
             }
 
@@ -115,7 +116,7 @@ namespace HimeLib
             }
         }
 
-        public void UGUI_PosCome(Vector2 pos)
+        public void ScreenPosCome(Vector2 pos)
         {
             //Debug.Log($"come : {pos}");
             screenCoordinate = pos;

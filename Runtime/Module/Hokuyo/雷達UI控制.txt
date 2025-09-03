@@ -1,5 +1,7 @@
 1. API Level .Net standard 2.1 切換成 .Net framework
 2. git安裝 https://github.com/curiosity-inc/urg-unity.git?path=Packages/jp.curiosity-inc.urg-unity
-3. 將HokuyoUGUI複製到專案
-4. 添加LiDarTouchManager到Hieracht，設置相關參數
-5. 設置事件，UI拖曳或是取消註解都可以
+3. 將UST-10LX Prefab拉到專案
+4. 將Hokuyo資料夾複製到專案
+5. 將HokuyoHelper Prefab拉到場景
+6. 添加LiDarTouchManager到Hierarchy，設置相關參數
+7. 設置事件，UI拖曳或是取消註解都可以
