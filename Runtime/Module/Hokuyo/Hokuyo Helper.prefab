@@ -602,7 +602,19 @@ MonoBehaviour:
     max: 1200
   OnScreenPosComeUnityEvent:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: HimeLib.LiDarTouchManager, Assembly-CSharp
+        m_MethodName: UGUI_PosCome
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &2226745306838600067
 GameObject:
   m_ObjectHideFlags: 0
@@ -9090,7 +9102,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: Press F1 to Hide
+  m_Text: Press F1 to Hide  | F2 to lock control panel
 --- !u!1 &2226745308229664728
 GameObject:
   m_ObjectHideFlags: 0

@@ -72,6 +72,9 @@ namespace HimeLib
                 CanvasParamUI.enabled = previewDetectInfo;
                 CanvasPointsPreview.enabled = previewDetectInfo;
             }
+            if(Input.GetKeyDown(KeyCode.F2)){
+                CanvasParamUI.GetComponent<GraphicRaycaster>().enabled = !CanvasParamUI.GetComponent<GraphicRaycaster>().enabled;
+            }
             
             if(!previewDetectInfo)
                 return;
