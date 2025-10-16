@@ -3,17 +3,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using HimeLib;
 using System.IO;
+using System.Linq;
 
 namespace HimeLib {
-    public class TimeArrange : SingletonMono<TimeArrange>
+    public class TimeArrangeFile : SingletonMono<TimeArrange>
     {
         [System.Serializable]
         public enum PlayMode
         {
             No = 0,
-            OnlyGame = 1,
-            OnlyAd = 2,
+            OnlyAd = 1,
+            OnlyGame = 2,
+            MoreAd = 3,
+            MoreGame = 4,
         }
 
         [System.Serializable]
@@ -33,13 +37,22 @@ namespace HimeLib {
         [SerializeField] bool useDebug = false;
         [SerializeField] bool useAdOnly = false;
 
+        [Header("UI Settings")]
         public Text TXT_Show;
+        public GameObject OBJ_Warning;
+
+        [Header("Settings")]
+        public string specialPath = "";
+        public string prefixTip = "[TimeArrange.txt] ";
+        public string readFileName = "TimeArrange.txt";
 
         [Header("Runtime")]
         public PlayMode currentPlayMode;
         public ViewState currentViewState;
         public TimeFlagSetting currentFlagSetting;
-
+        [SerializeField] List<string> readFileContent = new List<string>();
+        [SerializeField] bool useReadFile = false;
+        
         [Header("Settings")]
         public List<TimeFlagSetting> flagSettings = new List<TimeFlagSetting>();
         public System.Action<TimeFlagSetting, DateTime> OnTimeFlagChanged;
@@ -75,6 +88,7 @@ namespace HimeLib {
 
         IEnumerator TimeTick(){
             yield return null;
+            ReadTimeArrange();
             while(true){
                 if(useAdOnly){
                     currentPlayMode = PlayMode.OnlyAd;
@@ -102,7 +116,7 @@ namespace HimeLib {
                             Debug.Log($"{currentTime} - {currentPlayMode} - {currentViewState}");
                         }
 
-                        if(TXT_Show) TXT_Show.text = $"{currentPlayMode} - {currentViewState}";
+                        if(TXT_Show) TXT_Show.text = $"{prefixTip} {currentPlayMode} - {currentViewState}";
                         
                         goto NextLoop;
                     }
@@ -119,11 +133,56 @@ namespace HimeLib {
             if(mode == PlayMode.OnlyAd){
                 return ViewState.Ad;
             }
-            // if(mode == PlayMode.MoreGame){
-            //     if(ctime.Minute < 50) return ViewState.Game;
-            //     else return ViewState.Ad;
-            // }
+            if(mode == PlayMode.MoreGame){
+                if(ctime.Minute < 50) return ViewState.Game;
+                else return ViewState.Ad;
+            }
             return ViewState.Game;
+        }
+
+        public void ReadTimeArrange(){
+            string root = Application.dataPath;
+            string path = Path.Combine(root, "..", readFileName);
+            string path2 = Path.Combine(specialPath, readFileName);
+            if(File.Exists(path)){
+                string content = File.ReadAllText(path);
+                readFileContent = content.Split('\n').ToList(); 
+                Debug.Log(content);
+                useReadFile = true;
+
+                ReadFileContent();
+                return;
+            }
+            if(File.Exists(path2)){
+                string content = File.ReadAllText(path2);
+                readFileContent = content.Split('\n').ToList(); 
+                Debug.Log(content);
+                useReadFile = true;
+
+                ReadFileContent();
+                return;
+            }
+            prefixTip = "";
+        }
+        public void ReadFileContent(){
+            if(useReadFile){
+                flagSettings = new List<TimeFlagSetting>();
+                foreach(var line in readFileContent){
+                    try {
+                        string[] parts = line.Split('-');
+                        var setting = new TimeFlagSetting{
+                            playMode = PlayMode.OnlyAd,
+                            timeRange = new TimeRange(parts[0], parts[1])
+                        };
+                        flagSettings.Add(setting);
+                        setting.timeRange.InitializeTimes();
+
+                    } catch (Exception e) {
+                        Debug.LogError("讀取文件內容時發生錯誤: " + e.Message);
+                        if(OBJ_Warning) OBJ_Warning.SetActive(true);
+                    }
+                }
+            }
         }
     }
 }
