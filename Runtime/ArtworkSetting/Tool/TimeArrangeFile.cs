@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 
 namespace HimeLib {
-    public class TimeArrangeFile : SingletonMono<TimeArrange>
+    public class TimeArrangeFile : SingletonMono<TimeArrangeFile>
     {
         [System.Serializable]
         public enum PlayMode
