@@ -108,7 +108,11 @@ namespace HimeLib {
                     }
                 }
 
-                Debug.LogWarning("No time flag matched.");
+                // 每15分鐘才會顯示一次
+                if (currentTime.Minute % 15 == 0 && currentTime.Second == 0)
+                {
+                    Debug.LogWarning("No time flag matched. (" + currentTime.ToString("yyyy-MM-dd HH:mm:ss") + ")");
+                }
 
                 NextLoop:
                 yield return new WaitForSeconds(1);

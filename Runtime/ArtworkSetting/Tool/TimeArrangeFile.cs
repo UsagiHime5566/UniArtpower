@@ -122,7 +122,11 @@ namespace HimeLib {
                     }
                 }
 
-                Debug.LogWarning("No time flag matched.");
+                // 每15分鐘才會顯示一次
+                if (currentTime.Minute % 15 == 0 && currentTime.Second == 0)
+                {
+                    Debug.LogWarning("No time flag matched. (" + currentTime.ToString("yyyy-MM-dd HH:mm:ss") + ")");
+                }
 
                 NextLoop:
                 yield return new WaitForSeconds(1);
@@ -147,7 +151,7 @@ namespace HimeLib {
             if(File.Exists(path)){
                 string content = File.ReadAllText(path);
                 readFileContent = content.Split('\n').ToList(); 
-                Debug.Log(content);
+                Debug.Log($"ReadTimeArrange from {path} : \n" + content);
                 useReadFile = true;
 
                 ReadFileContent();
@@ -156,7 +160,7 @@ namespace HimeLib {
             if(File.Exists(path2)){
                 string content = File.ReadAllText(path2);
                 readFileContent = content.Split('\n').ToList(); 
-                Debug.Log(content);
+                Debug.Log($"ReadTimeArrange from {path2} : \n" + content);
                 useReadFile = true;
 
                 ReadFileContent();
