@@ -19,7 +19,7 @@ public class SystemLayout : SingletonMono<SystemLayout>
     
     int currentClickCount = 0;
     float lastClickTime;
-    float clickResetTime = 2f; // 2秒内需要完成所有点击
+    float clickResetTime = 2f; // 2秒內需要完成所有點擊
     Coroutine autoHideCoroutine;
     
     async void Start()
@@ -30,6 +30,7 @@ public class SystemLayout : SingletonMono<SystemLayout>
 
         BTN_Option_Close.onClick.AddListener(delegate {
             ShowOption(false);
+            SystemConfig.Instance.SaveValues();
         });
 
         await Task.Delay((int)(autoHideTimeAfterStart * 1000));
@@ -44,7 +45,7 @@ public class SystemLayout : SingletonMono<SystemLayout>
     {
         float currentTime = Time.time;
         
-        // 如果超过重置时间，重置点击计数
+        // 如果超過重置時間，重置點擊計數
         if (currentTime - lastClickTime > clickResetTime)
         {
             currentClickCount = 0;
@@ -53,13 +54,13 @@ public class SystemLayout : SingletonMono<SystemLayout>
         currentClickCount++;
         lastClickTime = currentTime;
         
-        // 如果达到指定点击次数，显示菜单
+        // 如果達到指定點擊次數，顯示選單
         if (currentClickCount >= openCount)
         {
             ShowOption(true);
             BTN_Option_Close.interactable = false;
             StartCoroutine(DelayedEnableButton());
-            currentClickCount = 0; // 重置计数
+            currentClickCount = 0; // 重置計數
         }
     }
 
@@ -78,7 +79,7 @@ public class SystemLayout : SingletonMono<SystemLayout>
             item.SetActive(val);
         }
 
-        // 处理自动隐藏
+        // 處理自動隱藏
         if (val)
         {
             if (autoHideCoroutine != null)
