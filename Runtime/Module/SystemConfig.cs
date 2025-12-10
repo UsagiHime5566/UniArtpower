@@ -58,10 +58,13 @@ public class SystemConfig
     {
     #if UNITY_STANDALONE_WIN
         SaveGame.Save<SystemData>(identifier, saveValue, SaveGamePath.DataPath);
+        string filePath = string.Format("{0}/../{1}", Application.dataPath, identifier);
+        Debug.Log($"Data Saved. Path: {filePath}");
     #else
         SaveGame.Save<SystemData>(identifier, saveValue, SaveGamePath.PersistentDataPath);
+        string filePath = string.Format("{0}/{1}", Application.persistentDataPath, identifier);
+        Debug.Log($"Data Saved. Path: {filePath}");
     #endif
-        Debug.Log("Data Saved.");
     }
 
     public void LoadLicenceFile(){

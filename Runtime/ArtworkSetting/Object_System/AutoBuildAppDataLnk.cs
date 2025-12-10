@@ -34,6 +34,11 @@ public class AutoBuildAppDataLnk : MonoBehaviour
         Debug.LogWarning("無法在 Unity Editor 中創建捷徑，請在打包後的程式中執行");
         return;
 #endif
+
+#if !UNITY_STANDALONE_WIN
+        Debug.LogWarning("不支援的平台，跳過創建捷徑");
+        return;
+#endif
         try
         {
             // 獲取目標路徑：AppData\LocalLow\CompanyName\ProductName
