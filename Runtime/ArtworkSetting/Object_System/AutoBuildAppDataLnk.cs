@@ -42,8 +42,9 @@ public class AutoBuildAppDataLnk : MonoBehaviour
         try
         {
             // 使用 Unity 實際採用的持久化資料路徑，避免 Windows 帳號資料夾名稱與 Environment.UserName 不一致。
-            string targetPath = Application.persistentDataPath;
-            
+            // Application.persistentDataPath 會以正斜線回傳，IShellLink 需要 Windows 反斜線路徑，這裡用 GetFullPath 正規化。
+            string targetPath = Path.GetFullPath(Application.persistentDataPath);
+
             // 確保目標資料夾存在
             if (!Directory.Exists(targetPath))
             {
@@ -82,8 +83,9 @@ public class AutoBuildAppDataLnk : MonoBehaviour
         IShellLink shellLink = (IShellLink)Activator.CreateInstance(shellLinkType);
 
         shellLink.SetPath(targetPath);
+        shellLink.SetWorkingDirectory(targetPath);
         shellLink.SetDescription($"快速開啟 {Application.productName} 的存檔資料夾");
-        
+
         IPersistFile persistFile = (IPersistFile)shellLink;
         persistFile.Save(shortcutPath, false);
 
