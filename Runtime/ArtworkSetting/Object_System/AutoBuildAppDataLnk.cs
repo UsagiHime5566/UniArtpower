@@ -11,7 +11,7 @@ public class AutoBuildAppDataLnk : MonoBehaviour
     public bool createOnStart = true;
 
     [Tooltip("捷徑名稱（不含副檔名）")]
-    public string shortcutName = "遊戲存檔資料夾";
+    public string shortcutName = "遊戲Log與存檔資料夾";
 
     void Start()
     {
@@ -41,12 +41,8 @@ public class AutoBuildAppDataLnk : MonoBehaviour
 #endif
         try
         {
-            // 獲取目標路徑：AppData\LocalLow\CompanyName\ProductName
-            string userName = Environment.UserName;
-            string companyName = Application.companyName;
-            string productName = Application.productName;
-            
-            string targetPath = $@"C:\Users\{userName}\AppData\LocalLow\{companyName}\{productName}";
+            // 使用 Unity 實際採用的持久化資料路徑，避免 Windows 帳號資料夾名稱與 Environment.UserName 不一致。
+            string targetPath = Application.persistentDataPath;
             
             // 確保目標資料夾存在
             if (!Directory.Exists(targetPath))
@@ -56,7 +52,7 @@ public class AutoBuildAppDataLnk : MonoBehaviour
             }
 
             // 捷徑放置位置：應用程式目錄
-            string appDirectory = Path.GetDirectoryName(Application.dataPath + "/../");
+            string appDirectory = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
             string shortcutPath = Path.Combine(appDirectory, $"{shortcutName}.lnk");
 
             // 如果捷徑已存在，先刪除
